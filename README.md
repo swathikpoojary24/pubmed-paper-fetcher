@@ -46,6 +46,6 @@ csv (Standard Library): CSV file handling.
 
 Git & GitHub: Version control and hosting.
 
-GitHub Codespaces: Cloud development environment.
+GitHub Codespaces:  Cloud development environment.
 
 Large Language Models (LLMs): Assisted in project design, code generation, debugging, and documentation.

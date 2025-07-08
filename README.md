@@ -7,15 +7,15 @@ This Python command-line tool searches PubMed for research papers, specifically 
 ## Code Organization
 The project is structured for clarity and maintainability:
 
-pyproject.toml: Poetry's configuration, defining project metadata, dependencies, and the get-papers-list command entry point.
+'pyproject.toml:' Poetry's configuration, defining project metadata, dependencies, and the get-papers-list command entry point.
 
-cli.py: The command-line interface (CLI) script; parses arguments and orchestrates the core logic.
+'cli.py:' The command-line interface (CLI) script; parses arguments and orchestrates the core logic.
 
-papers_fetcher/: A Python package containing the core functionality.
+'papers_fetcher/:' A Python package containing the core functionality.
 
-papers_fetcher/__init__.py: Marks papers_fetcher as a package.
+'papers_fetcher/__init__.py:' Marks papers_fetcher as a package.
 
-papers_fetcher/fetcher.py: Handles PubMed API interactions, XML parsing, and heuristic-based non-academic affiliation identification.
+'papers_fetcher/fetcher.py:' Handles PubMed API interactions, XML parsing, and heuristic-based non-academic affiliation identification.
 
 ## Installation and Execution
 

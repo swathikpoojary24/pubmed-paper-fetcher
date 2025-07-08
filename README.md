@@ -1,33 +1,35 @@
 # PubMed Paper Fetcher
 
 ## Overview
+This Python command-line tool searches PubMed for research papers, specifically filtering them to identify those with authors affiliated with pharmaceutical or biotech companies. It supports PubMed's full query syntax and can output results to the console or save them as a detailed CSV file.
 
-This Python CLI tool searches PubMed for research papers and filters them to find those with authors affiliated with pharmaceutical or biotech companies. Results can be output to the console or a CSV file. It leverages PubMed's API, custom affiliation heuristics, and is managed with Poetry.
+## Code Organization
+The project is structured for clarity and maintainability:
+pyproject.toml: Poetry's configuration, defining project metadata, dependencies, and the get-papers-list command entry point.
+cli.py: The command-line interface (CLI) script; parses arguments and orchestrates the core logic.
+papers_fetcher/: A Python package containing the core functionality.
+papers_fetcher/__init__.py: Marks papers_fetcher as a package.
+papers_fetcher/fetcher.py: Handles PubMed API interactions, XML parsing, and heuristic-based non-academic affiliation identification.
 
-## Features
-
-* **PubMed Integration:** Fetches data via PubMed ESearch and EFetch APIs.
-* **Smart Filtering:** Identifies non-academic (pharma/biotech) author affiliations using defined keywords.
-* **Flexible Queries:** Supports full PubMed query syntax.
-* **Output Options:** Displays results in console or exports to a structured CSV file.
-
-## Installation
-
+## Installation and Execution
 1.  **Prerequisites:** Ensure Python 3.10+ and [Poetry](https://python-poetry.org/) are installed.
-2.   **Install Dependencies:** From the project root (where `pyproject.toml` is):
+2.  **Install Dependencies:** From the project root (where `pyproject.toml` is):
     ```bash
     poetry install    
     ```
-    *Remember to close and reopen your terminal after Poetry installation.*
-
-## Usage
-
-Run the tool using `poetry run get-papers-list` with your desired arguments.
-
-```bash
-poetry run get-papers-list <query> --email <your_email> [--file <filename>] [--debug]
-
-## Example
- ''' bash
-poetry run get-papers-list "CRISPR gene editing" --file results.csv --email "your_email@example.com" --debug
-
+3.  **Execute Program:** Run using poetry run get-papers-list with your query and email.
+    ```bash
+    poetry run get-papers-list "YOUR_QUERY" --email "YOUR_EMAIL@example.com" [--file FILENAME.csv] [--debug]   
+    ```
+    Here's a concise "Documentation" section for your README.md, ready for copy-pasting:
+    
+## Tools Used
+Python 3.10+
+Poetry: Dependency management.
+argparse (Standard Library): CLI argument parsing.
+Requests: HTTP requests to PubMed API.
+xml.etree.ElementTree (Standard Library): XML parsing.
+csv (Standard Library): CSV file handling.
+Git & GitHub: Version control and hosting.
+GitHub Codespaces: Cloud development environment.
+Large Language Models (LLMs): Assisted in project design, code generation, debugging, and documentation.

@@ -6,6 +6,7 @@ from typing import List
 from papers_fetcher.fetcher import fetch_pubmed_ids, fetch_and_parse_paper_details, PaperInfo
 
 def write_csv(papers: List[PaperInfo], filename: str) -> None:
+    # Define the column headers for the CSV file
     csv_headers = [
         "PubmedID",
         "Title",
@@ -16,10 +17,12 @@ def write_csv(papers: List[PaperInfo], filename: str) -> None:
     ]
 
     try:
+        # Open the CSV file in write mode, ensuring proper newline handling and UTF-8 encoding
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(csv_headers)
             for p in papers:
+                # Iterate through each paper and write its data as a row
                 writer.writerow([
                     p.pubmed_id,
                     p.title,
@@ -39,6 +42,7 @@ def print_to_console(papers: List[PaperInfo]) -> None:
         print("No papers found matching the criteria.")
         return
 
+  # Iterate through each paper and print its details
     for p in papers:
         print(f"PubmedID: {p.pubmed_id}")
         print(f"Title: {p.title}")
@@ -55,13 +59,15 @@ def main() -> None:
                     "with a pharmaceutical or biotech company.",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    
+
+ # Define the required positional argument for the PubMed query string
     parser.add_argument(
         "query",
         type=str,
         help="The PubMed query string. Supports PubMed's full query syntax, e.g., '\"cancer immunotherapy\"[Title/Abstract] AND 2020:2024[PDAT]'"
     )
-    
+
+     # Define the required argument for the user's email address
     parser.add_argument(
         "-e", "--email",
         type=str,
@@ -69,36 +75,43 @@ def main() -> None:
         help="Your email address (required by NCBI for Entrez API usage)."
     )
 
+    # Define an optional flag for debug mode
     parser.add_argument(
         "-d", "--debug",
         action="store_true",
         help="Enable debug output to print verbose information during execution."
     )
-    
+
+    # Define an optional argument for specifying an output CSV filename
     parser.add_argument(
         "-f", "--file",
         type=str,
         help="Specify the filename to save the results as a CSV file. If not provided, output will be printed to the console."
     )
     
+    # Parse the command-line arguments provided by the user
     args = parser.parse_args()
-
+    
+    # Print debug messages if debug mode is enabled
     if args.debug:
         print(f"[DEBUG] Starting paper fetch for query: '{args.query}'", file=sys.stderr)
         print(f"[DEBUG] Using email: '{args.email}'", file=sys.stderr)
 
     try:
+        # Fetch PubMed IDs based on the query
         pubmed_ids = fetch_pubmed_ids(args.query, debug=args.debug)
         if not pubmed_ids:
             print(f"No PubMed IDs found for query: '{args.query}'", file=sys.stderr)
             sys.exit(1)
 
+         # Step 2: Fetch detailed paper information and filter for non-academic authors
         papers = fetch_and_parse_paper_details(pubmed_ids, debug=args.debug)
 
         if not papers:
             print("No papers found with non-academic (pharma/biotech) affiliations matching the criteria.", file=sys.stderr)
             sys.exit(0)
 
+         # Step 3: Handle output based on whether a file was specified
         if args.file:
             write_csv(papers, args.file)
             print(f"Results successfully saved to '{args.file}'")

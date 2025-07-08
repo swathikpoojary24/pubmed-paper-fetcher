@@ -1,4 +1,4 @@
-# PubMed Papers Fetcher
+# PubMed Paper Fetcher
 
 Fetch PubMed papers with at least one non-academic (pharma/biotech) author and export to CSV.
 

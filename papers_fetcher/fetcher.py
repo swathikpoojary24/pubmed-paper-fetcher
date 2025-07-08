@@ -4,10 +4,13 @@ import xml.etree.ElementTree as ET
 import re
 from dataclasses import dataclass
 
+#--- Constants for API and Heuristics---
 PUBMED_ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 PUBMED_EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 RETMAX_PAPERS = "200"
 
+# Heuristics for identifiying company affiliations
+# These keywords suggest a corporate/non-academic affiliation
 COMPANY_KEYWORDS = [
     "pharmaceutical", "pharma", "biotech", "biotechnology", "inc.", "llc",
     "corp.", "corporation", "co.", "company", "gmbh", "s.a.", "ag",
@@ -18,13 +21,14 @@ COMPANY_KEYWORDS = [
     "astrazeneca", "johnson & johnson", "merck", "eli lilly", "sanofi"
 ]
 
+# These keywords suggest an academic/hospital affiliation
 ACADEMIC_KEYWORDS = [
     "university", "institute", "college", "school", "department",
     "faculty", "hospital", "medical center", "center for disease control",
     "public health", "federal agency", "nih", "cdc", "who", "fda", "ema"
 ]
 
-
+# --- Data Structure for Paper Information ---
 @dataclass
 class PaperInfo:
     pubmed_id: str
@@ -34,7 +38,7 @@ class PaperInfo:
     company_affiliations: List[str]
     corresponding_email: Optional[str]
 
-
+# --- Utility Functions ---
 def is_corporate_affiliation(affiliation: str) -> bool:
     affiliation_lower = affiliation.lower()
 
@@ -46,19 +50,23 @@ def is_corporate_affiliation(affiliation: str) -> bool:
     
     return False
 
-
 def extract_first_email_from_text(text: str) -> Optional[str]:
     emails = re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text)
     return emails[0] if emails else None
 
-
+# --- Core PubMed API Interaction Functions ---
 def fetch_pubmed_ids(query: str, debug: bool = False) -> List[str]:
+    # Parameters for the ESearch API call
     params = {"db": "pubmed", "term": query, "retmax": RETMAX_PAPERS, "retmode": "xml"}
     try:
+        # Send GET request to the ESearch API
         resp = requests.get(PUBMED_ESEARCH_URL, params=params)
         resp.raise_for_status()
+        
+        # Parse the XML response and extract all <Id> elements
         root = ET.fromstring(resp.text)
         ids = [id_elem.text for id_elem in root.findall("./IdList/Id") if id_elem.text]
+        
         if debug:
             print(f"[DEBUG] Found {len(ids)} PubMed IDs for query: '{query}'")
         return ids
@@ -79,16 +87,20 @@ def fetch_and_parse_paper_details(pubmed_ids: List[str], debug: bool = False) ->
     params = {"db": "pubmed", "id": ",".join(pubmed_ids), "retmode": "xml"}
     
     try:
+        # Send GET request to the EFetch API
         resp = requests.get(PUBMED_EFETCH_URL, params=params)
         resp.raise_for_status()
-        root = ET.fromstring(resp.text)
-        
-        filtered_papers: List[PaperInfo] = []
 
+         # Parse the entire XML response containing details for multiple articles
+        root = ET.fromstring(resp.text)
+        filtered_papers: List[PaperInfo] = []
+        
+        # Iterate through each <PubmedArticle> element found in the XML response
         for article in root.findall("./PubmedArticle"):
+            # Extract PMID and Title, defaulting to 'N/A' if not found
             pmid = article.findtext("./MedlineCitation/PMID") or "N/A"
             title = article.findtext("./MedlineCitation/Article/ArticleTitle") or "N/A"
-
+            # Extract publication date, handling different XML structures (Year, Month, Day, or MedlineDate)
             pub_date = "N/A"
             pub_date_node = article.find("./MedlineCitation/Article/Journal/JournalIssue/PubDate")
             if pub_date_node is not None:
@@ -105,16 +117,19 @@ def fetch_and_parse_paper_details(pubmed_ids: List[str], debug: bool = False) ->
                             pub_date += f"-{day}"
                 elif medline_date:
                     pub_date = medline_date
-
+                    
+            # Initialize lists for authors and affiliations identified as non-academic for the current paper
             current_non_academic_authors: List[str] = []
             current_company_affiliations: List[str] = []
             current_corresponding_email: Optional[str] = None
 
+            # Iterate through each author in the article's AuthorList
             for author in article.findall("./MedlineCitation/Article/AuthorList/Author"):
                 last_name = author.findtext("LastName")
                 fore_name = author.findtext("ForeName")
                 full_name = f"{fore_name or ''} {last_name or ''}".strip()
 
+               # Extract the affiliation text for the current author
                 affiliation_node = author.find("./AffiliationInfo/Affiliation")
                 affiliation_text = affiliation_node.text if affiliation_node is not None else ""
 
@@ -131,7 +146,7 @@ def fetch_and_parse_paper_details(pubmed_ids: List[str], debug: bool = False) ->
                 (article_abstract_text if article_abstract_text else "")
             ) if article.findtext("./MedlineCitation/Article/AuthorList/Author/AffiliationInfo/Affiliation") else ""
 
-
+            # Extract the first email found from the combined text
             if article_other_fields_text:
                  current_corresponding_email = extract_first_email_from_text(article_other_fields_text)
 
@@ -148,6 +163,7 @@ def fetch_and_parse_paper_details(pubmed_ids: List[str], debug: bool = False) ->
                     corresponding_email=current_corresponding_email
                 ))
             elif debug:
+                 # If debug mode is on, log papers that were filtered out
                 print(f"[DEBUG] Paper {pmid}: No non-academic authors found based on heuristics.")
 
         if debug:
@@ -160,5 +176,6 @@ def fetch_and_parse_paper_details(pubmed_ids: List[str], debug: bool = False) ->
         print(f"Error parsing XML for paper details: {e}")
         return []
     except Exception as e:
+        # Catch any other unexpected errors during processing
         print(f"An unexpected error occurred during detail fetching/parsing for PubMed IDs {pubmed_ids}: {e}")
         return []

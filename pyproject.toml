@@ -6,7 +6,7 @@ authors = ["Your Name <your.email@example.com>"]
 packages = [{ include = "papers_fetcher" }]
 
 [tool.poetry.scripts]
-get-papers-list = "cli:main"
+get-papers-list = "main:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"

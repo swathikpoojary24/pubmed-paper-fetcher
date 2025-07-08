@@ -16,7 +16,7 @@ This Python CLI tool searches PubMed for research papers and filters them to fin
 1.  **Prerequisites:** Ensure Python 3.10+ and [Poetry](https://python-poetry.org/) are installed.
 2.   **Install Dependencies:** From the project root (where `pyproject.toml` is):
     ```bash
-    poetry install
+    poetry install    
     ```
     *Remember to close and reopen your terminal after Poetry installation.*
 
@@ -26,3 +26,8 @@ Run the tool using `poetry run get-papers-list` with your desired arguments.
 
 ```bash
 poetry run get-papers-list <query> --email <your_email> [--file <filename>] [--debug]
+
+## Example
+ ''' bash
+poetry run get-papers-list "CRISPR gene editing" --file results.csv --email "your_email@example.com" --debug
+

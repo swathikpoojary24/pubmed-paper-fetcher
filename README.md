@@ -28,7 +28,6 @@ papers_fetcher/fetcher.py: Handles PubMed API interactions, XML parsing, and heu
     ```bash
     poetry run get-papers-list "YOUR_QUERY" --email "YOUR_EMAIL@example.com" [--file FILENAME.csv] [--debug]   
     ```
-    Here's a concise "Documentation" section for your README.md, ready for copy-pasting:
     
 ## Tools Used
 

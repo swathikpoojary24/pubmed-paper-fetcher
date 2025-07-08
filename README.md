@@ -7,15 +7,15 @@ This Python command-line tool searches PubMed for research papers, specifically 
 ## Code Organization
 The project is structured for clarity and maintainability:
 
-'pyproject.toml:' Poetry's configuration, defining project metadata, dependencies, and the get-papers-list command entry point.
++ `pyproject.toml:` Poetry's configuration, defining project metadata, dependencies, and the  `get-papers-list` command entry point.
 
-'cli.py:' The command-line interface (CLI) script; parses arguments and orchestrates the core logic.
++ `cli.py:` The command-line interface (CLI) script; parses arguments and orchestrates the core logic.
 
-'papers_fetcher/:' A Python package containing the core functionality.
++ `papers_fetcher/:` A Python package containing the core functionality.
 
-'papers_fetcher/__init__.py:' Marks papers_fetcher as a package.
+     + `papers_fetcher/__init__.py:` Marks papers_fetcher as a package.
 
-'papers_fetcher/fetcher.py:' Handles PubMed API interactions, XML parsing, and heuristic-based non-academic affiliation identification.
+     + `papers_fetcher/fetcher.py:` Handles PubMed API interactions, XML parsing, and heuristic-based non-academic affiliation identification.
 
 ## Installation and Execution
 
@@ -31,20 +31,20 @@ The project is structured for clarity and maintainability:
     
 ## Tools Used
 
-Python 3.10+
++ Python 3.10+
 
-Poetry: Dependency management.
++ [Poetry](https://python-poetry.org/): Dependency management.
 
-argparse (Standard Library): CLI argument parsing.
++ `argparse`(Standard Library): CLI argument parsing.
 
-Requests: HTTP requests to PubMed API.
++ [Requests](https://requests.readthedocs.io/en/latest/): HTTP requests to PubMed API.
 
-xml.etree.ElementTree (Standard Library): XML parsing.
++ `xml.etree.ElementTree` (Standard Library): XML parsing.
 
-csv (Standard Library): CSV file handling.
++ `csv` (Standard Library): CSV file handling.
 
-Git & GitHub: Version control and hosting.
++ Git & GitHub: Version control and hosting.
 
-GitHub Codespaces:  Cloud development environment.
++ [GitHub Codespaces](https://docs.github.com/en/codespaces):  Cloud development environment.
 
-Large Language Models (LLMs): Assisted in project design, code generation, debugging, and documentation.
++ Large Language Models (LLMs): Assisted in project design, code generation, debugging, and documentation.

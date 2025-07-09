@@ -5,8 +5,7 @@ from typing import List
 
 from papers_fetcher.fetcher import fetch_pubmed_ids, fetch_and_parse_paper_details, PaperInfo
 
-def write_csv(papers: List[PaperInfo], filename: str) -> None:
-    # Define the column headers for the CSV file
+def write_csv(papers: List[PaperInfo], filename: str) -> bool: # <-- CHANGE: Return type is now bool
     csv_headers = [
         "PubmedID",
         "Title",
@@ -17,12 +16,10 @@ def write_csv(papers: List[PaperInfo], filename: str) -> None:
     ]
 
     try:
-        # Open the CSV file in write mode, ensuring proper newline handling and UTF-8 encoding
         with open(filename, mode='w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(csv_headers)
             for p in papers:
-                # Iterate through each paper and write its data as a row
                 writer.writerow([
                     p.pubmed_id,
                     p.title,
@@ -31,10 +28,13 @@ def write_csv(papers: List[PaperInfo], filename: str) -> None:
                     "; ".join(p.company_affiliations),
                     p.corresponding_email if p.corresponding_email else ""
                 ])
+        return True # <-- ADD THIS LINE: Indicates success
     except IOError as e:
         print(f"Error: Could not write to file '{filename}'. Reason: {e}", file=sys.stderr)
+        return False # <-- ADD THIS LINE: Indicates failure
     except Exception as e:
         print(f"An unexpected error occurred while writing CSV: {e}", file=sys.stderr)
+        return False # <-- ADD THIS LINE: Indicates failure
 
 
 def print_to_console(papers: List[PaperInfo]) -> None:
@@ -104,17 +104,21 @@ def main() -> None:
             print(f"No PubMed IDs found for query: '{args.query}'", file=sys.stderr)
             sys.exit(1)
 
-         # Step 2: Fetch detailed paper information and filter for non-academic authors
+         # Fetch detailed paper information and filter for non-academic authors
         papers = fetch_and_parse_paper_details(pubmed_ids, debug=args.debug)
 
         if not papers:
             print("No papers found with non-academic (pharma/biotech) affiliations matching the criteria.", file=sys.stderr)
             sys.exit(0)
 
-         # Step 3: Handle output based on whether a file was specified
-        if args.file:
-            write_csv(papers, args.file)
-            print(f"Results successfully saved to '{args.file}'")
+         # Handle output based on whether a file was specified
+       if args.file:
+            # Checks the return value of write_csv to know if it truly succeeded
+            if write_csv(papers, args.file): # Now checking the boolean return
+                print(f"Results successfully saved to '{args.file}'")
+            else:
+                # If write_csv returned False, it means an error occurred and was printed.
+                sys.exit(1) # Exits if write_csv failed
         else:
             print_to_console(papers)
 
